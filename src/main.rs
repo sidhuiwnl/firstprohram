@@ -18,11 +18,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if gitdiff.status.success(){
         let diff_output = String::from_utf8_lossy(&gitdiff.stdout);
 
-        let prompt = format!("Generate a complete, concise commit message in a single sentence based on this git diff:\n\n{}",
+        let prompt = format!("Generate a complete, concise commit message in a single sentence based on the git diff:\n\n{}",
             diff_output);
 
         match client.generate_story(&prompt).await {
-            Ok(story) => println!("Generated story:\n{}", story),
+            Ok(story) => println!("Commit message:\n{}", story),
             Err(e) => println!("Error: {}", e),
         }
     }else{
