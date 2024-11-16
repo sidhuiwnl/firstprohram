@@ -1,4 +1,5 @@
-
+use::std::path::PathBuf;
+use::std::fs;
 use anyhow::{Result, Context};
 use dotenv::dotenv;
 mod modals;
@@ -6,10 +7,40 @@ use modals::client::GeminiClient;
 use std::process::Command;
 use::std::io::{ self, Write };
 
+
+fn get_config_path() -> PathBuf{
+    if cfg!(windows) {
+        let appdata = std::env::var("APPDATA").unwrap_or_else(|_| ".".to_string());
+        PathBuf::from(appdata).join("commitai").join("config")
+    }else {
+        PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".to_string()))
+        .join(".config")
+        .join("commitai")
+        .join("config")
+    }
+}
+
+fn load_api_key() -> Result<String> {
+    let config_path = get_config_path();
+    let config = fs::read_to_string(&config_path)
+        .context(format!("Failed to read config file at {:?}", config_path))?;
+    
+    for line in config.lines() {
+        if line.starts_with("GOOGLE_API_KEY=") {
+            return Ok(line.trim_start_matches("GOOGLE_API_KEY=").to_string());
+        }
+    }
+    
+    Err(anyhow::anyhow!("GOOGLE_API_KEY not found in config file"))
+}
+
+
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    let api_key = std::env::var("GOOGLE_API_KEY").unwrap_or_else(|_| "none".to_string());
+    
+    let api_key = load_api_key()?;
+
     
     let client = GeminiClient::new(api_key);
 
