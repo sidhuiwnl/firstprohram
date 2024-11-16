@@ -2,6 +2,9 @@
 name = "commitai"
 version = "0.1.0"
 edition = "2021"
+description = "This is an ai commit message generator"
+license = "MIT"
+authors = ["Sidharth Babu"]
 
 [[bin]]
 name = "commitai"
