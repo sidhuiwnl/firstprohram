@@ -1,7 +1,9 @@
+
 use dotenv::dotenv;
 mod modals;
 use modals::client::GeminiClient;
 use std::process::Command;
+use::std::io::{ self, Write };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,17 +28,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(e) => { return Err(e.into())}
         };
 
-        let status = Command::new("git")
+        print!("{}",commit_message);
+        print!("Do you want to add this as the commit message(y/n):");
+        io::stdout().flush().expect("Failed to flush stdout");
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).expect("Failed to read input");
+
+        let input = input.trim().to_lowercase();
+
+        if input == "yes"{
+            let status = Command::new("git")
             .arg("commit")
             .arg("-m")
             .arg(commit_message)
             .status()?;
 
-        if status.success(){
-            println!("Commit successful");
-        }else {
-            eprintln!("Commit failed");
+            if status.success(){
+                println!("Commit successful");
+            }else {
+                eprintln!("Commit failed");
+            }
+        }else if input == "no"{
+            println!("You chose to exit.");
+        }else{
+            println!("Invalid response. Please answer 'yes' or 'no'.");
         }
+
+        
 
     }else{
         let error_output = String::from_utf8_lossy(&gitdiff.stderr);
