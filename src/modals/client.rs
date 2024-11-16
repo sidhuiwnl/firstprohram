@@ -17,7 +17,7 @@ impl GeminiClient {
 
     pub async fn generate_story(&self,prompt : &str) -> Result<String, reqwest::Error>{
         let url = format!(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={}",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key={}",
             self.api_key
         );
 
